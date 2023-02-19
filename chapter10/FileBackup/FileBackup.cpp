@@ -331,7 +331,7 @@ FLT_PREOP_CALLBACK_STATUS FileBackupPreWrite(PFLT_CALLBACK_DATA Data, PCFLT_RELA
 				if (SendClientPort) {
 					USHORT nameLen = context->FileName.Length;
 					USHORT len = sizeof(FileBackupPortMessage) + nameLen;
-					auto msg = (FileBackupPortMessage*)ExAllocatePoolWithTag(PagedPool, len, DRIVER_TAG);
+					auto msg = (FileBackupPortMessage*)ExAllocatePool2(POOL_FLAG_PAGED, len, DRIVER_TAG);
 					if (msg) {
 						msg->FileNameLength = nameLen / sizeof(WCHAR);
 						RtlCopyMemory(msg->FileName, context->FileName.Buffer, nameLen);
@@ -393,7 +393,7 @@ FLT_POSTOP_CALLBACK_STATUS FileBackupPostCreate(PFLT_CALLBACK_DATA Data, PCFLT_R
 
 	context->Written = FALSE;
 	context->FileName.MaximumLength = fileNameInfo->Name.Length;
-	context->FileName.Buffer = (WCHAR*)ExAllocatePoolWithTag(PagedPool, fileNameInfo->Name.Length, DRIVER_TAG);
+	context->FileName.Buffer = (WCHAR*)ExAllocatePool2(POOL_FLAG_PAGED, fileNameInfo->Name.Length, DRIVER_TAG);
 	if (!context->FileName.Buffer) {
 		FltReleaseContext(context);
 		return FLT_POSTOP_FINISHED_PROCESSING;
@@ -571,7 +571,7 @@ NTSTATUS BackupFile(_In_ PUNICODE_STRING FileName, _In_ PCFLT_RELATED_OBJECTS Fl
 		UNICODE_STRING targetFileName;
 		const WCHAR backupStream[] = L":backup";
 		targetFileName.MaximumLength = FileName->Length + sizeof(backupStream);
-		targetFileName.Buffer = (WCHAR*)ExAllocatePoolWithTag(PagedPool, targetFileName.MaximumLength, DRIVER_TAG);
+		targetFileName.Buffer = (WCHAR*)ExAllocatePool2(POOL_FLAG_PAGED, targetFileName.MaximumLength, DRIVER_TAG);
 		if (targetFileName.Buffer == nullptr)
 			return STATUS_INSUFFICIENT_RESOURCES;
 
@@ -603,7 +603,7 @@ NTSTATUS BackupFile(_In_ PUNICODE_STRING FileName, _In_ PCFLT_RELATED_OBJECTS Fl
 
 		// allocate buffer for copying purposes
 		ULONG size = 1 << 21;	// 2 MB
-		buffer = ExAllocatePoolWithTag(PagedPool, size, DRIVER_TAG);
+		buffer = ExAllocatePool2(POOL_FLAG_PAGED, size, DRIVER_TAG);
 		if (!buffer) {
 			status = STATUS_INSUFFICIENT_RESOURCES;
 			break;
@@ -672,7 +672,7 @@ bool IsBackupDirectory(_In_ PCUNICODE_STRING directory) {
 	if (directory->Length > maxSize)
 		return false;
 
-	auto copy = (WCHAR*)ExAllocatePoolWithTag(PagedPool, maxSize + sizeof(WCHAR), DRIVER_TAG);
+	auto copy = (WCHAR*)ExAllocatePool2(POOL_FLAG_PAGED, maxSize + sizeof(WCHAR), DRIVER_TAG);
 	if (!copy)
 		return false;
 

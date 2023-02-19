@@ -9,6 +9,8 @@ ClassGuid   = {f8ecafa6-66d1-41a5-899b-66585d7216b7}
 Provider    = %ManufacturerName%
 DriverVer   = 
 CatalogFile = FileBackup.cat
+; 追加 PrimitiveDriver としての仕様を満たすため https://learn.microsoft.com/en-us/windows-hardware/drivers/develop/creating-a-primitive-driver
+PnpLockDown = 1
 
 [DestinationDirs]
 DefaultDestDir          = 12
@@ -18,22 +20,24 @@ MiniFilter.DriverFiles  = 12            ;%windir%\system32\drivers
 ;; Default install sections
 ;;
 
-[DefaultInstall]
+; NTamd64 の注釈を追加 PrimitiveDriver としての仕様を満たすため https://learn.microsoft.com/en-us/windows-hardware/drivers/develop/creating-a-primitive-driver
+[DefaultInstall.NTamd64]
 OptionDesc          = %ServiceDescription%
 CopyFiles           = MiniFilter.DriverFiles
 
-[DefaultInstall.Services]
+[DefaultInstall.NTamd64.Services]
 AddService          = %ServiceName%,,MiniFilter.Service
 
 ;;
 ;; Default uninstall sections
 ;;
 
-[DefaultUninstall]
-DelFiles   = MiniFilter.DriverFiles
+; 削除 PrimitiveDriver では DefaultUninstallは禁止されている
+;[DefaultUninstall.NTamd64]
+;DelFiles   = MiniFilter.DriverFiles
 
-[DefaultUninstall.Services]
-DelService = %ServiceName%,0x200      ;Ensure service is stopped before deleting
+;[DefaultUninstall.NTamd64.Services]
+;DelService = %ServiceName%,0x200      ;Ensure service is stopped before deleting
 
 ;
 ; Services Section
