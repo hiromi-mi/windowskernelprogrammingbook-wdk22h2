@@ -4,10 +4,10 @@
 
 class kstring final {
 public:
-	explicit kstring(const wchar_t* str = nullptr, POOL_TYPE pool = PagedPool, ULONG tag = 0);
-	kstring(const wchar_t* str, ULONG count, POOL_TYPE pool = PagedPool, ULONG tag = 0);
+	explicit kstring(const wchar_t* str = nullptr, POOL_FLAGS pool = POOL_FLAG_PAGED, ULONG tag = 0);
+	kstring(const wchar_t* str, ULONG count, POOL_FLAGS pool = POOL_FLAG_PAGED, ULONG tag = 0);
 	kstring(const kstring& other);
-	explicit kstring(PCUNICODE_STRING str, POOL_TYPE pool = PagedPool, ULONG tag = 0);
+	explicit kstring(PCUNICODE_STRING str, POOL_FLAGS pool = POOL_FLAG_PAGED, ULONG tag = 0);
 	kstring& operator= (const kstring& other);
 	kstring(kstring&& other);
 	kstring& operator=(kstring&& other);
@@ -58,6 +58,6 @@ private:
 private:
 	wchar_t* m_str;
 	ULONG m_Len, m_Capacity;
-	POOL_TYPE m_Pool;
+	POOL_FLAGS m_Pool;
 	ULONG m_Tag;
 };

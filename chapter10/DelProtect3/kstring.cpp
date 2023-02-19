@@ -1,9 +1,9 @@
 #include "kstring.h"
 
-kstring::kstring(const wchar_t* str, POOL_TYPE pool, ULONG tag) : kstring(str, 0, pool, tag) {
+kstring::kstring(const wchar_t* str, POOL_FLAGS pool, ULONG tag) : kstring(str, 0, pool, tag) {
 }
 
-kstring::kstring(const wchar_t* str, ULONG count, POOL_TYPE pool, ULONG tag) : m_Pool(pool), m_Tag(tag) {
+kstring::kstring(const wchar_t* str, ULONG count, POOL_FLAGS pool, ULONG tag) : m_Pool(pool), m_Tag(tag) {
 	if (str) {
 		m_Len = count == 0 ? static_cast<ULONG>(wcslen(str)) : count;
 		m_Capacity = m_Len + 1;
@@ -32,8 +32,11 @@ kstring::kstring(kstring&& other) {
 	m_Len = other.m_Len;
 	m_str = other.m_str;
 	m_Pool = other.m_Pool;
+	m_Capacity = other.m_Capacity;
+	m_Tag = other.m_Tag;
 	other.m_str = nullptr;
 	other.m_Len = 0;
+	other.m_Capacity = 0;
 }
 
 kstring& kstring::operator+=(const kstring& other) {
@@ -75,7 +78,7 @@ kstring& kstring::operator=(kstring&& other) {
 	return *this;
 }
 
-kstring::kstring(PCUNICODE_STRING str, POOL_TYPE pool, ULONG tag) : m_Pool(pool), m_Tag(tag) {
+kstring::kstring(PCUNICODE_STRING str, POOL_FLAGS pool, ULONG tag) : m_Pool(pool), m_Tag(tag) {
 	m_Len = str->Length / sizeof(WCHAR);
 	m_str = Allocate(m_Len, str->Buffer);
 }
@@ -83,6 +86,7 @@ kstring::kstring(PCUNICODE_STRING str, POOL_TYPE pool, ULONG tag) : m_Pool(pool)
 kstring::kstring(const kstring& other) : m_Len(other.m_Len) {
 	m_Pool = other.m_Pool;
 	m_Tag = other.m_Tag;
+	m_Capacity = m_Len;
 	if (m_Len > 0) {
 		m_str = Allocate(m_Len, other.m_str);
 	}
@@ -111,9 +115,9 @@ UNICODE_STRING* kstring::GetUnicodeString(PUNICODE_STRING pUnicodeString) {
 }
 
 wchar_t* kstring::Allocate(size_t chars, const wchar_t* src) {
-	auto str = static_cast<wchar_t*>(ExAllocatePoolWithTag(m_Pool, sizeof(WCHAR) * (chars + 1), m_Tag));
+	auto str = static_cast<wchar_t*>(ExAllocatePool2(m_Pool, sizeof(WCHAR) * (chars + 1), m_Tag));
 	if (!str) {
-		KdPrint(("Failed to allocate kstring of length %d chars\n", chars));
+		KdPrint(("Failed to allocate kstring of length %d chars\n", static_cast<int>(chars)));
 		return nullptr;
 	}
 	if (src) {
