@@ -864,7 +864,7 @@ NTSTATUS DelProtectDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
 
 }
 
-int FindDirectory(PCUNICODE_STRING name, bool dosName) {
+int FindDirectory(_In_ PCUNICODE_STRING name, bool dosName) {
 	if (DirNamesCount == 0)
 		return -1;
 
@@ -909,7 +909,7 @@ NTSTATUS ConvertDosNameToNtName(_In_ PCWSTR dosName, _Out_ PUNICODE_STRING ntNam
 	if (dosName[2] != L'\\' || dosName[1] != L':')
 		return STATUS_INVALID_PARAMETER;
 
-	kstring symLink(L"\\??\\", PagedPool, DRIVER_TAG);
+	kstring symLink(L"\\??\\", POOL_FLAG_PAGED, DRIVER_TAG);
 
 	symLink.Append(dosName, 2);		// driver letter and colon
 
