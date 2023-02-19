@@ -683,7 +683,7 @@ FLT_PREOP_CALLBACK_STATUS DelProtectPreCreate(PFLT_CALLBACK_DATA Data, PCFLT_REL
 		KdPrint(("Delete on close: %wZ\n", &FltObjects->FileObject->FileName));
 
 		auto size = 512;	// some arbitrary size
-		auto processName = (UNICODE_STRING*)ExAllocatePoolWithTag(PagedPool, size, DRIVER_TAG);
+		auto processName = (UNICODE_STRING*)ExAllocatePool2(POOL_FLAG_PAGED, size, DRIVER_TAG);
 		if (processName == nullptr)
 			return FLT_PREOP_SUCCESS_NO_CALLBACK;
 
@@ -743,7 +743,7 @@ FLT_PREOP_CALLBACK_STATUS DelProtectPreSetInformation(PFLT_CALLBACK_DATA Data, P
 	auto returnStatus = FLT_PREOP_SUCCESS_NO_CALLBACK;
 
 	auto size = 512;	// some arbitrary size
-	auto processName = (UNICODE_STRING*)ExAllocatePoolWithTag(PagedPool, size, DRIVER_TAG);
+	auto processName = (UNICODE_STRING*)ExAllocatePool2(POOL_FLAG_PAGED, size, DRIVER_TAG);
 	if (processName) {
 		RtlZeroMemory(processName, size);	// ensure string will be NULL-terminated
 		status = ZwQueryInformationProcess(hProcess, ProcessImageFileName,
@@ -801,7 +801,7 @@ NTSTATUS DelProtectDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
 			for (int i = 0; i < MaxExecutables; i++) {
 				if (ExeNames[i] == nullptr) {
 					auto len = (::wcslen(name) + 1) * sizeof(WCHAR);
-					auto buffer = (WCHAR*)ExAllocatePoolWithTag(PagedPool, len, DRIVER_TAG);
+					auto buffer = (WCHAR*)ExAllocatePool2(POOL_FLAG_PAGED, len, DRIVER_TAG);
 					if (!buffer) {
 						status = STATUS_INSUFFICIENT_RESOURCES;
 						break;

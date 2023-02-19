@@ -39,7 +39,7 @@ NTSTATUS DevMonManager::AddDevice(PCWSTR name) {
 					break;
 
 				// allocate buffer to copy device name
-				buffer = (WCHAR*)ExAllocatePoolWithTag(PagedPool, targetName.Length, DRIVER_TAG);
+				buffer = (WCHAR*)ExAllocatePool2(POOL_FLAG_PAGED, targetName.Length, DRIVER_TAG);
 				if (!buffer) {
 					status = STATUS_INSUFFICIENT_RESOURCES;
 					break;

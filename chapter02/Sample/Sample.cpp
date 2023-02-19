@@ -13,7 +13,7 @@ void SampleUnload(_In_ PDRIVER_OBJECT DriverObject) {
 
 extern "C" NTSTATUS
 DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING RegistryPath) {
-	g_RegistryPath.Buffer = (WCHAR*)ExAllocatePoolWithTag(PagedPool, RegistryPath->Length, DRIVER_TAG);
+	g_RegistryPath.Buffer = (WCHAR*)ExAllocatePool2(POOL_FLAG_PAGED, RegistryPath->Length, DRIVER_TAG);
 
 	if (g_RegistryPath.Buffer == nullptr) {
 		KdPrint(("Failed to allocate memory\n"));

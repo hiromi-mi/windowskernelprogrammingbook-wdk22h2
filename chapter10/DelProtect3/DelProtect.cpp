@@ -785,7 +785,7 @@ NTSTATUS DelProtectDeviceControl(PDEVICE_OBJECT, PIRP Irp) {
 		for (int i = 0; i < MaxDirectories; i++) {
 			if (DirNames[i].DosName.Buffer == nullptr) {
 				auto len = (dosNameLen + 2) * sizeof(WCHAR);
-				auto buffer = (WCHAR*)ExAllocatePoolWithTag(PagedPool, len, DRIVER_TAG);
+				auto buffer = (WCHAR*)ExAllocatePool2(POOL_FLAG_PAGED, len, DRIVER_TAG);
 				if (!buffer) {
 					status = STATUS_INSUFFICIENT_RESOURCES;
 					break;
@@ -929,7 +929,7 @@ NTSTATUS ConvertDosNameToNtName(_In_ PCWSTR dosName, _Out_ PUNICODE_STRING ntNam
 			break;
 
 		USHORT maxLen = 1024;	// arbitrary
-		ntName->Buffer = (WCHAR*)ExAllocatePoolWithTag(PagedPool, maxLen, DRIVER_TAG);
+		ntName->Buffer = (WCHAR*)ExAllocatePool2(POOL_FLAG_PAGED, maxLen, DRIVER_TAG);
 		if (!ntName->Buffer) {
 			status = STATUS_INSUFFICIENT_RESOURCES;
 			break;
